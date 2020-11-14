@@ -1,0 +1,90 @@
+学习报告2
+报告时间:2020.11.13   星期五
+部门:软件部
+姓名:倪培洋
+学号:2000300222
+①在学长的帮助下用pip下载了NumPy(意外获得学长研究出来的神秘文件加快了下载速度),编辑了环境变量.
+②根据学长的指导用cmd重新为Pycharm配置了环境,学到了activate base的指令.
+③(非常激动)自己摸索着用cmd activate base并用pip install pandas指令下载了pandas,并在Pycharm中成功import pandas as pd,运行了有关pandas的代码.
+④在bilibili上学习了吴恩达机器学习的网课,学到了单一特征和n个特征的线性回归方程,复习了矩阵和向量.大致理解了线性回归中代价函数Hypothesis,并掌握了两种求Hypothesis的系数向量θ的方法:1)梯度下降法Gradient descent 2)正规方程法Normal equation method.清楚什么时候用梯度下降,什么时候用正规方程:n>1.e+4用正规方程,数据再多则考虑梯度下降.(最重要的是求出Hypothesis的θ)
+⑤以下为本周笔记
+17.
+约定类中的函数叫方法
+约定首字母大写的名称是类,小写的是类中的方法
+若想要类中的一个方法每当根据该类创建实例时都自动运行它,则约定该方法的名称开头和结尾都要有"_"
+类中的方法在定义时都要有形参self,并置于所有形参之前,在调用该方法时,会自动传入实参self,无需手动传递.其余的形参和还需手动传递实参.
+以self为前缀定义的变量可供类中的所有方法使用.
+
+18.
+在写入文件路径时为避免由于'\'引起错误,在地址字符串的''前应加'r'
+
+19.
+文件操作函数:
+逐行读取:`for lines in file_object:`
+读取文件并转化为字符串存在列表中:`strings =  file_object.readlines()`
+(要注意空格空白换行问题)
+以'w'模式打开文件时,若该文件存在,则会覆盖重新写文件
+若想继续操作不覆盖,则以'a+'模式打开文件
+函数write()不会在写入文本的末尾加上'\n'
+
+**20.NumPy:**
+**import numpy as np**
+1)arrange函数:np.arrange(),此函数与range()一样,范围不包含右侧的数字
+2)通过实例访问的变量叫属性
+file_object.dtype是属性,不是函数,不用()
+3)Python中生成随机小数的函数:
+4)python
+import random
+num1 = random.random()
+取小数的位数函数:
+python
+num2 = np.round(num1,n)
+#此时num2为随机生成的小数num1的n位
+#也可以用"%.nf"%random.random()生成取n位的小数
+4)reshape函数有返回值,有返回值的函数一般都不对操作对象做出永久改变,即只是临时改变操作对象并返回改变后的值.
+扩展:extend()函数在列表结尾追加多个值并对原列表做出改变
+5)一维数组,二维数组和多维数组最直观的区别就是中括号的个数
+6)将一个多维数组传变成一维数组,可以用flatten函数.
+arrrayx.flatten()
+该函数有返回值,只是临时改变
+7)常用api:
+①中位数:np.median(arr)
+②百分位数:np.percentile(arr,n)  (n为int型)
+该函数返回arr中n%位置的数
+③最大值最小值:arr.max()   arr.min()
+返回最大值最小值索引:arr.argmax()    arr.argmin()
+(返回的索引是一维的,因为Python把高维数组转成一维数组再进行上述操作)
+④求和:arr.sum()    返回该数组所有元素的和
+⑤均值:arr.mean()
+标准差:arr.std()
+方差:arr.var()
+⑥参数--轴:可以用axis控制,限制聚合函数的聚合方式
+例:arr.sum(axis=0)  求arr各行的和 或arr.sum(0)
+arr.sum(axis=1) 求arr各列的和 或arr.sum(1)
+⑦Boll数组
+e.g.求arr中大于0的项的和:
+(arr>0).sum()
+两个对于Boll数组专门的api:  any 和 all
+(arr>0).any():如果arr中存在大于0的数就返回True
+(arr>0).all():如果arr中全部的数都大于0,则返回False
+⑧排序
+补充:inplace函数是对原值操作并改变原值,无返回值
+NumPy中sort函数是inplace函数
+arr.sort(0):对arr中各行从小到大排序
+⑨构造等差数列:
+dengcha = np.linspace(n1,n2,n3)
+分别代表开始值,结束值,数组中元素个数.(默认包含结束值)
+也可以不包含结束值:np.space(n1,n2,n3,endpoint=False)
+ 等比数列dengbi = np.longspace(n1,n2,n3)
+ 
+21.字符串空格处理等相关问题:
+str = 
+str.strip()去除字符串开头和结尾的空白;
+str.lstrip()去除字符串左边的空白;
+str.rstrip()去除字符串右边的空白;
+str.replace('m','n')将字符串中的m替换为n    **特别注意:replace函数与去除字符串空白函数均只是临时改变字符串**
+
+22.arange()函数可以生成小数而range()函数只能填入整数
+⑥Summary:
+本周慢慢接触到了与机器学习有相关的知识,周末和下周要学习pandas和matplotlib
+应尝试着用Pycharm导入小型数据并!!!用python真正写出线性回归函数(难)
