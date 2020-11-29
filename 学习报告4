@@ -1,0 +1,189 @@
+学习报告4
+报告时间:2020.11.29   星期日
+部门:软件部
+姓名:倪培洋
+学号:2000300222
+
+本周主要任务是完成线性回归的代码实现.
+基本分为以下五个主要环节:
+Ⅰ定义了hypothesis函数、computeCost函数、gradientDescent函数;
+Ⅱ选择特征值;
+Ⅲ特征值的归一化处理;
+Ⅳ选择学习度和迭代次数;调用计算final_theta;
+Ⅴ画bar柱状图;
+
+①定义函数过程非常费心,经常出现矩阵进行乘法时格式不对,导致报错的情况,同样也导致了在Ⅳ中出现数据类型为NAN的问题;
+②特征值的选择比较简单,但由于技术不到家,尚且不能确定是否合适,在csv文件的第三例又加上了一行全为1的特征值,便于矩阵运算;
+③归一化处理非常重要,也耗费了大量时间选择合适的归一化方法.如果不进行归一化处理,将各个特征值约束到一定范围内,会影响theta的大小,从而对特征值的重要度误判;如果归一化不合适,还会造成运算过程中数据过大或过小,导致数据类型变为NAN甚至报错等问题;
+④在学习度的筛选过程中提心吊胆,学习度不合适,也会造成运算过程出现一系列错误的问题,过大过小都不可;筛选过程的基本原则是让cost值无限接近0;目前的学习度为0.159,对应的cost值为0.081,尚可;
+⑤经过一系列的计算,得出的final_theta的值相差较大,让我有点惶恐,但学习度已经很接近0了,而且把原数据带进去之后算出来的hypothesis的值也与训练集中的y值相差0.1,所以还是比较满意,在画主张图时遇到的问题就是有的值为负,有的值为正,只需取绝对值就可,但数据相差较大在柱状图中体现的淋漓尽致,所以效果不太好,尚未找到解决方法.
+
+下周计划:
+绘蓝杯时间已经过半,下一周要抓紧完善代码,画出bar柱状图,创造合理的预测环境;并在代码中完善注释,并适当添加print语句创造良好交互界面;希望现有的函数框架不会出现什么大乱子...
+
+以下附上本周的学习笔记:
+**第四周学习笔记**
+(代码实现过程中复习到的知识)
+28.Dataframe.insert(loc, column, value, allow_duplicates=False): 在Dataframe的指定列中插入数据。
+参数介绍：
+①loc:  int型，表示第几列；若在第一列插入数据，则 loc=0
+②column: 给插入的列取名，如 column='新的一列'
+③value：数字，array，series等都可（可自己尝试）
+④allow_duplicates: 是否允许列名重复，选择Ture表示允许新的列名与已存在的列名重复。
+
+29.
+np.linalg.inv(A)
+该函数返回A的逆矩阵
+
+30.
+线性回归实现代码
+
+VERSION 1.0
+(对训练集中的y也进行了归一化处理.且归一化处理方式是(原值-均值)/最大值)
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def hypothesis(X,theta):
+    y = X.dot(theta.T)
+    return y
+
+def computeCost(X,y,theta):
+    inner = np.power((X.dot(theta.T)-y),2)
+    return np.sum(inner)/(2*len(X))
+
+def gradientDescent(X,y,theta,alpha,epoch):
+    temp = np.array(np.zeros(theta.shape))
+    cost = np.zeros(epoch)
+    m = int(X.shape[0])
+    for i in range(1,(epoch+1)):
+        temp = theta-(alpha/m)*(X.dot(theta.T)-y).T.dot(X)
+        theta = temp
+        cost = computeCost(X, y, theta)
+    return theta,cost
+
+
+data = pd.read_csv(r'C:\Users\Administrator\Desktop\bike_day.csv',keep_default_na=False)
+alpha = 0.1717
+epoch = 10000
+data.insert(2,'ones',1)
+cols = data.shape[1]
+data.iloc[:,5]=((data.iloc[:,5]-data.iloc[:,5].mean())/data.iloc[:,5].max())
+data.iloc[:,7]=((data.iloc[:,7]-data.iloc[:,7].mean())/data.iloc[:,7].max())
+for i in range(14,17):
+    data.iloc[:,i]=((data.iloc[:,i]-data.iloc[:,i].mean())/data.iloc[:,i].max())
+X = data.iloc[:,2:cols-1]
+y = data.iloc[:,cols-1:cols]
+X = np.array(X.values)
+y = np.array(y.values)
+theta = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
+final_theta,cost = gradientDescent(X,y,theta,alpha,epoch)
+print("the final theta is:")
+print(final_theta)
+print(cost)
+
+#已经求得最优的theta,现输入需要预测的变量
+XX = np.zeros((1,14))
+for j in range(0,14):
+    XX[0][j] = input("input the data you want to do the hypothesis:")
+yy=hypothesis(XX,final_theta)
+print(yy)
+
+VERSION 2.0
+(没有对y进行归一化处理,归一化时分母用了max-min)
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def hypothesis(X,theta):
+    y = X.dot(theta.T)
+    return y
+
+def computeCost(X,y,theta):
+    inner = np.power((X.dot(theta.T)-y),2)
+    return np.sum(inner)/(2*len(X))
+
+def gradientDescent(X,y,theta,alpha,epoch):
+    temp = np.array(np.zeros(theta.shape))
+    cost = np.zeros(epoch)
+    m = int(X.shape[0])
+    for i in range(1,(epoch+1)):
+        temp = theta-(alpha/m)*(X.dot(theta.T)-y).T.dot(X)
+        theta = temp
+        cost = computeCost(X, y, theta)
+    return theta,cost
+
+
+data = pd.read_csv(r'C:\Users\Administrator\Desktop\bike_day.csv',keep_default_na=False)
+alpha = 0.174
+epoch = 10000
+data.insert(2,'ones',1)
+cols = data.shape[1]
+data.iloc[:,5]=((data.iloc[:,5]-data.iloc[:,5].mean())/(data.iloc[:,5].max()-data.iloc[:,5].min()))
+data.iloc[:,7]=((data.iloc[:,7]-data.iloc[:,7].mean())/(data.iloc[:,7].max()-data.iloc[:,7].min()))
+for i in range(14,16):
+    data.iloc[:,i]=((data.iloc[:,i]-data.iloc[:,i].mean())/(data.iloc[:,i].max()-data.iloc[:,i].min()))
+X = data.iloc[:,2:cols-1]
+y = data.iloc[:,cols-1:cols]
+X = np.array(X.values)
+y = np.array(y.values)
+theta = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
+final_theta,cost = gradientDescent(X,y,theta,alpha,epoch)
+print("the final theta is:")
+print(final_theta)
+print(cost)
+
+#已经求得最优的theta,现输入需要预测的变量
+XX = np.zeros((1,14))
+for j in range(0,14):
+    XX[0][j] = input("input the data you want to do the hypothesis:")
+yy=hypothesis(XX,final_theta)
+print(yy)
+
+VERSION 3.0
+(归一化用分子用原值-min())
+(当学习度为0.159时,cost=0.081)
+def hypothesis(X,theta):
+    y = X.dot(theta.T)
+    return y
+
+def computeCost(X,y,theta):
+    inner = np.power((X.dot(theta.T)-y),2)
+    return np.sum(inner)/(2*len(X))
+
+def gradientDescent(X,y,theta,alpha,epoch):
+    temp = np.array(np.zeros(theta.shape))
+    cost = np.zeros(epoch)
+    m = int(X.shape[0])
+    for i in range(1,(epoch+1)):
+        temp = theta-(alpha/m)*(X.dot(theta.T)-y).T.dot(X)
+        theta = temp
+        cost = computeCost(X, y, theta)
+    return theta,cost
+
+
+data = pd.read_csv(r'C:\Users\Administrator\Desktop\bike_day.csv',keep_default_na=False)
+alpha = 0.159
+epoch = 10000
+data.insert(2,'ones',1)
+cols = data.shape[1]
+data.iloc[:,5]=((data.iloc[:,5]-data.iloc[:,5].min())/(data.iloc[:,5].max()-data.iloc[:,5].min()))
+data.iloc[:,7]=((data.iloc[:,7]-data.iloc[:,7].min())/(data.iloc[:,7].max()-data.iloc[:,7].min()))
+for i in range(14,16):
+    data.iloc[:,i]=((data.iloc[:,i]-data.iloc[:,i].min())/(data.iloc[:,i].max()-data.iloc[:,i].min()))
+X = data.iloc[:,2:cols-1]
+y = data.iloc[:,cols-1:cols]
+X = np.array(X.values)
+y = np.array(y.values)
+theta = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
+final_theta,cost = gradientDescent(X,y,theta,alpha,epoch)
+print("the final theta is:")
+print(final_theta)
+print(cost)
+
+#已经求得最优的theta,现输入需要预测的变量
+XX = np.zeros((1,14))
+for j in range(0,14):
+    XX[0][j] = input("input the data you want to do the hypothesis:")
+yy=hypothesis(XX,final_theta)
+print(yy)
