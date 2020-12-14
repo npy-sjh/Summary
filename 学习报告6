@@ -1,0 +1,324 @@
+学习报告6
+报告时间:2020.12.13  星期日
+部门:软件部
+姓名:倪培洋
+学号:2000300222
+
+环节一:每日感想
+Monday:
+上周日和汪学长交流了归一化处理的问题,经过我们的讨论,我们认为不归一化处理很不合适,但要选择正确的归一化方法(不涉及全局数据的方法),这样才能避免对单个数据进行预测时出现问题的情况.于是我了解到了atan反正切函数归一化.由于atan函数参数不能为DataFrame类型,因此今天想了很多方法终于解决了这个问题.
+Tuesday及以后(绘蓝杯验收):
+每天都在绘蓝杯.自己对绘蓝杯的想法:
+首先在咨询过学长后选了cnt的预测,只用到线性回归比较简单,也担心选了更难的之后做不出来,现在马上就要做出来了,又感觉线性回归太简单,和别的作品比起来会显得太单薄.可是再回头看看自己做的绘蓝杯,哪怕是线性回归简单但仍然有我解决不了的问题,而且甚至不确定这到底是不是一个问题:明明拟合的比较好,但是算出来的重要度却是这么离谱,再输入数据算出来的数据也很接近,所以从精确度上来说,我还是很满足、很自信的.
+心里觉得拉胯,可我也没有放弃.我尽力用tkinter和pygame美化了界面、添加了程序音乐,又添了很多自己设计尽量为用户准备一个更好的程序体验,所以不管和别人的神经网络、游戏开发比起来有多拉胯,至少不后悔.
+在自己从无到有,碰壁开发的过程中碰到了很多挫折,也体会到了自己摸索成功的喜悦,不管结果怎么样,至少是自己真的付出了心血,花了时间,花了精力做出来的第一个像样的作品.
+
+环节二:下周任务
+下周去图书馆借一本机器学习的书,跟着书学点比线性回归更深入的知识;同时也要再认真复习前面学过的python基础.
+
+环节三:学习笔记
+这周的笔记比较少,都在终稿代码里了.
+学习笔记:
+33.
+重要发现:
+列表甚至可以当成指针来操作,用来解决函数中形参不能传给实参的问题
+比如以下代码.欲用tkinter将输入值传给method;由于button的command只能传入函数名(不能带参数),因此涉及到形参传给实参的问题:
+
+```python
+import tkinter as tk
+
+lyst=['path']
+
+def input_file():
+    lyst[0]=e.get()
+
+window=tk.Tk()
+window.title('输入预测文件的绝对路径')
+window.geometry('400x400')
+b1=tk.Button(window,text='hit me to input',width=15,height=3,command=input_file,bg='yellow')
+b1.pack()
+
+b2=tk.Button(window,text='hit me to quit',width=15,height=3,command=window.quit,bg='red')
+b2.pack()
+
+e=tk.Entry(window,show=None)
+e.pack()
+
+window.mainloop()
+print(lyst[0])
+```
+该代码可以按照设计意图完美运行,令人惊叹:
+在定义input_file函数时,没有传入任何参数(比如lyst),但lyst[0]仍可以在函数中被赋值并可以在函数外输出正确的值
+
+34.
+给程序添加背景音乐:
+需要import pygame as py
+①初始化:
+py.mixer.init()
+②加载本地音乐:
+py.mixer.music.load('music_path')
+③播放音乐:
+py.mixer.play(-1,time)
+有两个参数:第一个是播放类型(-1是指循环播放,time是音乐开始播放的时间)
+
+35.
+设置背景图片(其实是设置一个label)
+需要from PIL import Image,ImageTk
+①首先需要打开本地图片
+image_ = Image.open('image_path')
+②读取背景图片
+background_image = ImageTk.PhotoImage(image_)
+③设置图片大小(需要根据窗口大小调整)
+
+36.
+Label(父对象, text=“标签内容”, width=“宽度”, height=“高度”, anchor=“对齐方式”,font=( 字体, 字号, 粗体, 斜体, 下划线, 删除线)")
+anchor：对齐方式 可选内容包括 n:靠上 w靠左 s靠下 e靠右 或者组合使用，，如nw 左上方对齐
+绘蓝杯终稿代码:
+# 2000300222 软件部-机器学习 倪培洋
+# 绘蓝杯-软件类方向-机器学习B组
+# Date:2020/12/13
+# NOW THE CODE BEGINS
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import operator
+from functools import reduce
+import tkinter as tk
+import pygame as py
+from PIL import Image,ImageTk
+
+#在程序开头播放音乐
+py.mixer.init()#初始化
+py.mixer.music.load(r'D:\wechat files\wxid_lpo5xzmbz3sy22\FileStorage\File\2020-12\symphony.mp3') #加载mp3文件
+py.mixer.music.play(-1,0)#第一个数字'-1'代表循环播放,第二个数字'0'表示播放文件的时间
+#播放设置结束
+
+#创建一个初始窗口
+window = tk.Tk()#初始化窗口
+window.title('三院科协:绘蓝杯-科协软件部-倪培洋-软件类方向-机器学习B1-小黄车使用量')
+
+#设置背景图片(实质是为标签设置一张背景图片)
+image1 = Image.open(r'C:\Users\Administrator\Desktop\hlb3.jpg')
+background_image = ImageTk.PhotoImage(image1)
+w=800
+h=600
+window.geometry('%dx%d'%(w, h))#满足用变量名代入的需求
+background_label = tk.Label(window, image=background_image)
+background_label.place(x=0, y=0)#将background_label放在绝对位置(0,0)上
+#设置结束
+
+b = tk.Button(window, text='单击此处开启绘蓝杯', width=15, height=3, command=window.quit, bg='skyblue')
+b.pack()
+window.mainloop()
+
+def hypothesis(X, theta):
+    y = X.dot(theta.T)
+    return y
+
+def computeCost(X, y, theta):
+    _matrix = np.power((X.dot(theta.T)-y),2)#计算平方
+    return np.sum(_matrix)/(2*len(X))#计算数组中所有元素之和
+
+def gradientDescent(X, y, theta, alpha, epoch):
+    _temp = np.array(np.zeros(theta.shape))
+    m = int(X.shape[0])
+    for i in range(1, (epoch+1)):
+        _temp = theta-(alpha/m)*(X.dot(theta.T)-y).T.dot(X)
+        theta = _temp
+        cost = computeCost(X, y, theta)
+    return theta, cost
+
+
+data = pd.read_csv(r'C:\Users\Administrator\Desktop\bike_day.csv')
+alpha = 0.0715
+epoch = 10000
+data.insert(2,'ones',1)
+cols = data.shape[1]
+
+
+#个体特征值归一化处理(尽量将所有特征值缩小到(0,1)的范围,采取了除以其数量级的方法)
+data.iloc[:,5]=data.iloc[:,5]/10
+data.iloc[:,7]=data.iloc[:,7]/10
+for i in range(14,16):
+    data.iloc[:,i]=data.iloc[:,i]/1000
+
+#为各个主要数据赋值
+X = data.iloc[0:531,2:cols - 1]
+y = data.iloc[0:531,cols-1:cols]
+#此时X,y的类型都是DataFrame,无法进行后续运算
+#用values取DataFrame的值,然后建立同维数组
+X = np.array(X.values)
+y = np.array(y.values)
+theta = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
+
+final_theta, cost = gradientDescent(X, y, theta, alpha, epoch)
+print("经迭代得到的final_theta为:")
+print(final_theta)
+print("最终得到的final_theta所对应的cost值为:")
+print(cost)
+
+#增加一个窗口,显示过程中运算得到的值
+window = tk.Tk()
+window.title('过程显示')
+window.geometry('800x600')
+label_ = tk.Label(window, text='经迭代得到的final_theta为:\n'+str(final_theta)+'\n最终得到的final_theta所对应的cost值为:\n'+str(cost)
+                  +'\n\n经过梯度下降,算出了当代价函数为0.011536035227136997时对应的theta值\n下面将绘制出用算出的final_theta预测后200个数据的折线图\n'+
+                   '与真实数据的折线图的比较以验证算法的精确度',
+                  width=700, height=500, bg='skyblue', font=('黑体', 11))
+label_.pack()
+window.mainloop()
+
+#经过梯度下降,算出了当代价函数为0.011536035227136997时对应的theta
+
+#下面绘制原训练集与以训练集为数据预测出的cnt的折线图比较(即拟合检测)
+plt.rcParams['font.sans-serif']=['SimHei'] #解决乱码:用来正常显示中文记号
+xz = range(1, 201, 1)
+yz1 = data.iloc[531:731, cols-1:cols]
+yz1 = np.array(yz1.values)
+yz1 = reduce(operator.add, yz1.T) #训练集数据,用reduce降低维数(注意需要转置,因为reduce默认对行进行一系列操作)
+X_ = data.iloc[531:731, 2:cols - 1]
+X_ = np.array(X_.values)
+yz2 = reduce(operator.add,hypothesis(X_, final_theta).T)#用训练集算出来的final_theta为参数,训练集原始数据的后200行算出y的预测值并画出图作比较
+plt.xticks(np.linspace(1, 201, 5))
+plt.plot(xz, yz1, color = 'pink', label = '真实数据')
+plt.plot(xz, yz2, color = 'purple', label = '预测数据')
+plt.rcParams['font.sans-serif']=['SimHei']   #解决乱码:用来正常显示中文字符
+plt.title('拟合程度的比较')
+plt.legend()
+plt.show()
+
+#下面绘制各特征值和与其对应的theta(即重要度)bar的柱状图
+#创建x轴刻度的元组
+x_label = ['添加的常数', 'season', 'yr', 'month', 'holiday', 'weekday', 'workday', 'weathersit',
+           'temp', 'atemp', 'hum', 'windspeed', 'casual', 'registered']
+
+#设置横、纵坐标数据
+xp = range(14)
+yp = reduce(operator.add, final_theta)#降低y的维度
+#显示横坐标轴上各个值所对应的记号
+plt.xticks(range(14), x_label)
+#设置横、纵坐标的标签
+plt.xlabel('各特征值的名称')
+plt.ylabel('各特征值的重要度(以各特征值前的系数而定)')
+#设置bar柱状图的标题
+plt.title('关于十四个特征值的重要度的柱状图')
+#显示各个柱子的数据
+for a, b in zip(xp, yp): #zip函数用于组合两个可迭代的列表
+    plt.text(a, b, '%.3lf'%b, ha='center', va='bottom', fontsize=11)
+plt.bar(xp, yp, width = 0.5, color = 'skyblue')
+plt.show()
+
+#输出用户输入时需注意的重要提示!
+
+#输出提示
+window = tk.Tk()
+window.title('选择输入方式')
+window.geometry('800x600')
+label_ = tk.Label(window, text="上面已经验证了线性回归的准确性,下面进行新值预测\n请选择输入预测数据的方式:\n"+
+                  "①若想在规定文件中输入多个特征值,请输入'第一种'\n②若想直接使用写好预测值的文件当做输入数据时,请输入'第二种'", bg='pink',
+                  font=('黑体',11), width = 800 , height = 600)
+label_.pack()
+window.mainloop()
+#提示结束
+
+lyst=['path']
+
+def input_file():
+    lyst[0] = e.get()
+
+window = tk.Tk()
+window.title('输入你想要进行的导入方式(第一种 or 第二种)')
+
+#设置背景图片
+image1 = Image.open(r'C:\Users\Administrator\Desktop\hlb4.jpg')
+background_image = ImageTk.PhotoImage(image1)
+w = background_image.width()#铺满全屏
+h = background_image.height()
+window.geometry('%dx%d'%(w, h))
+background_label = tk.Label(window, image=background_image)
+background_label.place(x=0, y=0)
+#设置结束
+
+b1 = tk.Button(window, text='单击此处确认输入', width=15, height=3, command=input_file, bg='blue')
+b1.pack()
+
+b2 = tk.Button(window, text='单击此处确认退出', width=15, height=3, command=window.quit, bg='red')
+b2.pack()
+
+e = tk.Entry(window, show = None)
+e.pack()
+
+window.mainloop()
+
+mode = lyst[0]
+
+if(mode == '第一种'):
+    window = tk.Tk()
+    window.title('温馨提示')
+    window.geometry('800x600')
+    label_ts = tk.Label(window, text = '温馨提示:\n您已选择在规定文件中输入预测数据\n'
+                                       '请在桌面上名为\'hypothesis.csv\'的文件中输入预测值',
+                        font=('黑体',11), bg= 'skyblue', width = 800 , height = 600)
+    label_ts.pack()
+    window.mainloop()
+    # print("请在桌面上名为'hypothesis.csv'的文件中输入预测值\n")
+    data_hy = pd.read_csv(r'C:\Users\Administrator\Desktop\hypothesis.csv',keep_default_na=False)
+
+if(mode == '第二种'):
+    window = tk.Tk()
+    window.title('温馨提示')
+    window.geometry('800x600')
+    label_ts = tk.Label(window, text='温馨提示:\n您已选择自己导入新的文件\n请将文件传入至该电脑后\n根据接下来的提示输入该文件的地址', font=('黑体', 11))
+    label_ts.pack()
+    window.mainloop()
+    # print("温馨提示:\n您已选择导入与测试集格式相同的csv文件\n")
+
+    window = tk.Tk()
+    window.title('输入你的文件的绝对路径(直接输入路径即可,无需其他符号)')
+    # window.geometry('800x600')
+    # # 设置背景图片
+    image1 = Image.open(r'C:\Users\Administrator\Desktop\hlb4.jpg')
+    background_image = ImageTk.PhotoImage(image1)
+    w = background_image.width()
+    h = background_image.height()
+    window.geometry('%dx%d' % (w, h))
+    background_label = tk.Label(window, image=background_image)
+    background_label.place(x=0, y=0)
+    # # 设置结束
+    b1 = tk.Button(window, text='单击此处确认输入', width=15, height=3, command=input_file, bg='skyblue')
+    b1.pack()
+    b2 = tk.Button(window, text='单击此处确认退出', width=15, height=3, command=window.quit, bg='red')
+    b2.pack()
+    e = tk.Entry(window, show=None)
+    e.pack()
+    window.mainloop()
+
+    file_hy = lyst[0]
+    data_hy = pd.read_csv(file_hy)
+
+#针对两种情况统一处理该预测文件
+data_hy.insert(2, 'ones', 1)
+cols_hy = data_hy.shape[1]
+
+data_hy.iloc[:, 5] = data_hy.iloc[:, 5]/10
+data_hy.iloc[:, 7] = data_hy.iloc[:, 7]/10
+for i in range(14, 16):
+    data_hy.iloc[:, i] = data_hy.iloc[:, i]/1000
+
+X_hy = data_hy.iloc[:, 2:cols_hy - 1]
+y_hy = hypothesis(X_hy,final_theta)
+
+window = tk.Tk()
+window.title('最终预测数据')
+window.geometry('800x600')
+label_yc = tk.Label(window, text = '本文件数据的预测结果为:\n'+str(y_hy), font=('黑体', 11), bg = 'skyblue', width = 800 , height = 600)
+label_yc.pack()
+window.mainloop()
+
+window= tk.Tk()
+window.title('最后一页')
+window.geometry('800x600')
+label_zh = tk.Label(window, text = '程序结束\nHAVE A NICE DAY', font=('黑体',18), bg = 'skyblue', width = 800 , height = 600)
+label_zh.pack()
+window.mainloop()
